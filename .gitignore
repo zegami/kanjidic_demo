@@ -1,0 +1,4 @@
+*.sw[nop]
+*.py[cod]
+images/
+dic.tsv
