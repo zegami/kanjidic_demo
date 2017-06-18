@@ -98,7 +98,7 @@ class KanjiDic(object):
     HEADER_START = b"# KANJIDIC JIS X 0208 Kanji Information File/"
 
     def __init__(self, line_iter):
-        self.kanji = tuple(Kanji.from_line(line) for line in line_iter)
+        self.kanji = [Kanji.from_line(line) for line in line_iter]
 
     @classmethod
     def from_file(cls, fileobj):
@@ -111,6 +111,9 @@ class KanjiDic(object):
     def from_gzip(cls, gzip_filename):
         with gzip.GzipFile(gzip_filename) as f:
             return cls.from_file(f)
+
+    def extend(self, other):
+        self.kanji.extend(other.kanji)
 
     def to_tsv(self, tsv_filename):
         with codecs.open(tsv_filename, "wb", encoding='utf-8') as f:

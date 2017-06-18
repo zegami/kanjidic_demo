@@ -66,8 +66,7 @@ def main(argv):
         dic = kdic.KanjiDic.from_gzip(path_208)
         if args.also_212:
             path_212 = get_dic(args.dir, KANJD212_URL)
-            dic212 = kdic.KanjiDic0212.from_gzip(path_212)
-            dic212.to_tsv(os.path.join(args.dir, "dic2.tsv"))
+            dic.extend(kdic.KanjiDic0212.from_gzip(path_212))
         face = font.load_face(args.font)
         dic.to_tsv(os.path.join(args.dir, "dic.tsv"))
         render_all(args.dir, face, dic)
