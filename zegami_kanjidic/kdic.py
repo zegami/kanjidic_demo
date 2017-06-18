@@ -21,31 +21,32 @@ _pat = re.compile(
     u"(?: C\\d+)?"
     u"(?: G(?P<grade>\\d+)\\b)?"
     u" S(?P<stroke_count>\\d+)\\b"
-    u".*?"
-    u"(?: Q(?P<four_corner>[.\\d]+))?\\b"
-    u".*?"
-    u"(?P<on_readings>(?: [ア-ン]+)+)?"
-    u"(?P<kun_readings>(?: [-.あ-ん]+)+)?"
-    u"(?: T\\d+(?: [-.あ-ん]+)+)?"
+    u"(?: S\\d+)*"
+    u"(?: [FJHNVDPIMEKLOXZ][^ ]+)*"
+    u"(?P<four_corner>(?: Q[.\\d]+)*)"
+    u"(?: [DZYW][^ ]+)*"
+    u"(?P<on_readings>(?: [-ア-ンー]+)*)"
+    u"(?P<kun_readings>(?: [-.あ-ん]+)*)"
+    u"(?: T\\d+(?: [-.あ-んア-ンー]+)+)*"
     u"(?P<translations>(?: {[^}]+})*)"
     u" $", re.UNICODE)
 
 
-def optional(conversion):
-    def _wrapped_conversion(content):
-        if content is None:
-            return None
-        return conversion(content)
-    return _wrapped_conversion
+def optint(string_or_none):
+    if string_or_none is None:
+        return None
+    return int(string_or_none)
 
 
-def trans(string):
-    return string.strip("{} ").split("} {")
+def multi(sep):
+    def _strip_and_split(string):
+        return string.strip(sep).split(sep)
+    return _strip_and_split
 
 
-optint = optional(int)
-opttext = optional(text)
-optsplit = optional(text.split)
+split = text.split
+corners = multi(" Q")
+trans = multi("} {")
 
 
 class Kanji(object):
@@ -55,8 +56,7 @@ class Kanji(object):
         "four_corner", "on_readings", "kun_readings", "translations")
 
     _conversions = dict(zip(__slots__, (
-        text, text, text, int, int, optint, opttext, optsplit, optsplit,
-        trans)))
+        text, text, text, int, int, optint, corners, split, split, trans)))
 
     def __init__(self, **kwargs):
         for k in kwargs:
