@@ -13,10 +13,12 @@ import sys
 
 from . import (
     font,
+    http,
     kdic,
     )
 
 
+KANJIDIC_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjidic.gz"
 KANJIDIC_NAME = "kanjidic.gz"
 DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
@@ -27,6 +29,13 @@ def _ensure_dir(dirname):
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
+
+
+def get_dic(to_dir):
+    dic_path = os.path.join(to_dir, KANJIDIC_NAME)
+    if not os.path.exists(dic_path):
+        http.download(KANJIDIC_URL, dic_path)
+    return dic_path
 
 
 def render_all(to_dir, face, dic):
@@ -49,7 +58,7 @@ def main(argv):
     args = parse_args(argv)
     try:
         _ensure_dir(args.dir)
-        dic = kdic.KanjiDic.from_gzip(os.path.join(args.dir, KANJIDIC_NAME))
+        dic = kdic.KanjiDic.from_gzip(get_dic(args.dir))
         face = font.load_face(args.font)
         dic.to_tsv(os.path.join(args.dir, "dic.tsv"))
         render_all(args.dir, face, dic)

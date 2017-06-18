@@ -22,8 +22,6 @@ published under the `SIL Open Font Licence, Version 1.1`_ which allows reuse.
 TODO
 ----
 
-- Downloading dictionary files
-
 - Automated collection creation
 
   - Registering/updating collection over api
