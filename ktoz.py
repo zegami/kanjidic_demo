@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+#
+# Copyright 2017 Zegami Ltd
+
 """Turn kanjidic into a Zegami collection."""
 
 from __future__ import absolute_import

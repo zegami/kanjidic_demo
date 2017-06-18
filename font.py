@@ -1,3 +1,5 @@
+# Copyright 2017 Zegami Ltd
+
 """Tools for loading font and rendering characters."""
 
 import freetype

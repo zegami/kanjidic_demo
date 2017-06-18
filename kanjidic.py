@@ -1,4 +1,7 @@
 # coding: utf-8
+#
+# Copyright 2017 Zegami Ltd
+
 """In memory representation of kanjidic."""
 
 import gzip
