@@ -19,7 +19,7 @@ from . import (
 
 
 KANJIDIC_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjidic.gz"
-KANJIDIC_NAME = "kanjidic.gz"
+KANJD212_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjd212.gz"
 DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
 
@@ -31,10 +31,11 @@ def _ensure_dir(dirname):
             raise
 
 
-def get_dic(to_dir):
-    dic_path = os.path.join(to_dir, KANJIDIC_NAME)
+def get_dic(to_dir, dic_url):
+    dic_name = dic_url.rsplit("/", 1)[-1]
+    dic_path = os.path.join(to_dir, dic_name)
     if not os.path.exists(dic_path):
-        http.download(KANJIDIC_URL, dic_path)
+        http.download(dic_url, dic_path)
     return dic_path
 
 
@@ -51,6 +52,9 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument("--dir", default="data", help="dir for output")
     parser.add_argument("--font", default=DEFAULT_FONT, help="path of font")
+    parser.add_argument(
+        "--also-212", action="store_true",
+        help="include supplementary kanji from JIS X 0212-1990")
     return parser.parse_args(argv[1:])
 
 
@@ -58,7 +62,12 @@ def main(argv):
     args = parse_args(argv)
     try:
         _ensure_dir(args.dir)
-        dic = kdic.KanjiDic.from_gzip(get_dic(args.dir))
+        path_208 = get_dic(args.dir, KANJIDIC_URL)
+        dic = kdic.KanjiDic.from_gzip(path_208)
+        if args.also_212:
+            path_212 = get_dic(args.dir, KANJD212_URL)
+            dic212 = kdic.KanjiDic0212.from_gzip(path_212)
+            dic212.to_tsv(os.path.join(args.dir, "dic2.tsv"))
         face = font.load_face(args.font)
         dic.to_tsv(os.path.join(args.dir, "dic.tsv"))
         render_all(args.dir, face, dic)

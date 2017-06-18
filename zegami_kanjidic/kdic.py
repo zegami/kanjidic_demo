@@ -22,12 +22,12 @@ _pat = re.compile(
     u"(?: G(?P<grade>\\d+)\\b)?"
     u" S(?P<stroke_count>\\d+)\\b"
     u".*?"
-    u"\\bQ(?P<four_corner>[.\\d]+)\\b"
+    u"(?: Q(?P<four_corner>[.\\d]+))?\\b"
     u".*?"
     u"(?P<on_readings>(?: [ア-ン]+)+)?"
     u"(?P<kun_readings>(?: [-.あ-ん]+)+)?"
     u"(?: T\\d+(?: [-.あ-ん]+)+)?"
-    u"(?P<translations>(?: {[^}]+})+)"
+    u"(?P<translations>(?: {[^}]+})*)"
     u" $", re.UNICODE)
 
 
@@ -44,6 +44,7 @@ def trans(string):
 
 
 optint = optional(int)
+opttext = optional(text)
 optsplit = optional(text.split)
 
 
@@ -54,7 +55,8 @@ class Kanji(object):
         "four_corner", "on_readings", "kun_readings", "translations")
 
     _conversions = dict(zip(__slots__, (
-        text, text, text, int, int, optint, text, optsplit, optsplit,  trans)))
+        text, text, text, int, int, optint, opttext, optsplit, optsplit,
+        trans)))
 
     def __init__(self, **kwargs):
         for k in kwargs:
@@ -93,6 +95,7 @@ class Kanji(object):
 class KanjiDic(object):
 
     ENCODING = "EUC_JP"
+    HEADER_START = b"# KANJIDIC JIS X 0208 Kanji Information File/"
 
     def __init__(self, line_iter):
         self.kanji = tuple(Kanji.from_line(line) for line in line_iter)
@@ -100,7 +103,7 @@ class KanjiDic(object):
     @classmethod
     def from_file(cls, fileobj):
         first = fileobj.readline()
-        if not first.startswith(b"# KANJIDIC"):
+        if not first.startswith(cls.HEADER_START):
             raise ValueError("Not a kanjidic file")
         return cls(line.decode(cls.ENCODING) for line in fileobj)
 
@@ -113,3 +116,8 @@ class KanjiDic(object):
         with codecs.open(tsv_filename, "wb", encoding='utf-8') as f:
             f.write(Kanji.header_row())
             f.writelines(k.to_row() for k in self.kanji)
+
+
+class KanjiDic0212(KanjiDic):
+
+    HEADER_START = b"# KANJD212 JIS X 0212 Kanji Information File/"
