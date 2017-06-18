@@ -1,19 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2017 Zegami Ltd
 
-"""Turn kanjidic into a Zegami collection."""
+"""Command line script for making a Zegami collection from KANJIDIC."""
 
 from __future__ import absolute_import
-from __future__ import print_function
 
 import argparse
 import errno
 import os
 import sys
 
-import font
-import kdic
+from . import (
+    font,
+    kdic,
+    )
 
 
 KANJIDIC_NAME = "kanjidic.gz"

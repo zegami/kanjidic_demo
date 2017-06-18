@@ -1,3 +1,6 @@
 *.sw[nop]
 *.py[cod]
 data/
+build/
+dist/
+*.egg-info/
