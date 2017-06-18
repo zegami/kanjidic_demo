@@ -14,9 +14,10 @@ import os
 import sys
 
 import font
-import kanjidic
+import kdic
 
 
+KANJIDIC_NAME = "kanjidic.gz"
 DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
 
@@ -31,7 +32,7 @@ def _ensure_dir(dirname):
 def create_tsv(to_dir, dic):
     filename = os.path.join(to_dir, "dic.tsv")
     with codecs.open(filename, "wb", encoding='utf-8') as f:
-        f.write(kanjidic.Kanji.header_row())
+        f.write(kdic.Kanji.header_row())
         f.writelines(k.to_row() for k in dic.kanji)
 
 
@@ -46,21 +47,19 @@ def render_all(to_dir, face, dic):
 
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
-    parser.add_argument("kanjidic", help="path of kanjidic.gz file")
-    parser.add_argument("--to", default="", help="dir for  data and images")
+    parser.add_argument("--dir", default="data", help="dir for output")
     parser.add_argument("--font", default=DEFAULT_FONT, help="path of font")
     return parser.parse_args(argv[1:])
 
 
 def main(argv):
     args = parse_args(argv)
+    _ensure_dir(args.dir)
     try:
-        kdic = kanjidic.KanjiDic.from_gzip(args.kanjidic)
+        dic = kdic.KanjiDic.from_gzip(os.path.join(args.dir, KANJIDIC_NAME))
         face = font.load_face(args.font)
-        create_tsv(args.to, kdic)
-        render_all(args.to, face, kdic)
-        for k in kdic.kanji[:3]:
-            print(repr(k))
+        create_tsv(args.dir, dic)
+        render_all(args.dir, face, dic)
     except (EnvironmentError, ValueError) as e:
         sys.stderr.write("error: {}\n".format(e))
         return 1
