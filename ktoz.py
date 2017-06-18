@@ -8,7 +8,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import argparse
-import codecs
 import errno
 import os
 import sys
@@ -29,13 +28,6 @@ def _ensure_dir(dirname):
             raise
 
 
-def create_tsv(to_dir, dic):
-    filename = os.path.join(to_dir, "dic.tsv")
-    with codecs.open(filename, "wb", encoding='utf-8') as f:
-        f.write(kdic.Kanji.header_row())
-        f.writelines(k.to_row() for k in dic.kanji)
-
-
 def render_all(to_dir, face, dic):
     image_dir = os.path.join(to_dir, "images")
     _ensure_dir(image_dir)
@@ -54,11 +46,11 @@ def parse_args(argv):
 
 def main(argv):
     args = parse_args(argv)
-    _ensure_dir(args.dir)
     try:
+        _ensure_dir(args.dir)
         dic = kdic.KanjiDic.from_gzip(os.path.join(args.dir, KANJIDIC_NAME))
         face = font.load_face(args.font)
-        create_tsv(args.dir, dic)
+        dic.to_tsv(os.path.join(args.dir, "dic.tsv"))
         render_all(args.dir, face, dic)
     except (EnvironmentError, ValueError) as e:
         sys.stderr.write("error: {}\n".format(e))

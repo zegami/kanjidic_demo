@@ -4,6 +4,7 @@
 
 """In memory representation of kanjidic."""
 
+import codecs
 import gzip
 import re
 import sys
@@ -107,3 +108,8 @@ class KanjiDic(object):
     def from_gzip(cls, gzip_filename):
         with gzip.GzipFile(gzip_filename) as f:
             return cls.from_file(f)
+
+    def to_tsv(self, tsv_filename):
+        with codecs.open(tsv_filename, "wb", encoding='utf-8') as f:
+            f.write(Kanji.header_row())
+            f.writelines(k.to_row() for k in self.kanji)
