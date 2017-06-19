@@ -14,7 +14,7 @@ text = str if sys.version_info > (3,) else unicode
 
 # Overly complex regexp for parsing kanjidic
 _pat = re.compile(
-    u"^(?P<kanji>[^ ]+)"
+    u"^(?P<char>[^ ]+)"
     u" (?P<jis>[0-9a-fA-F]+)"
     u" U(?P<unicode>[0-9a-f]+)"
     u" B(?P<classification>\\d+)"
@@ -52,7 +52,7 @@ trans = multi("} {")
 class Kanji(object):
 
     __slots__ = (
-        "kanji", "jis", "unicode", "classification", "stroke_count", "grade",
+        "char", "jis", "unicode", "classification", "stroke_count", "grade",
         "four_corner", "on_readings", "kun_readings", "translations")
 
     _conversions = dict(zip(__slots__, (

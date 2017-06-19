@@ -40,13 +40,19 @@ def get_dic(reporter, to_dir, dic_url):
     return dic_path
 
 
-def render_all(to_dir, face, dic):
-    image_dir = os.path.join(to_dir, "images")
+def _iter_new_images(data_dir, kanji_iter):
+    image_dir = os.path.join(data_dir, "images")
     _ensure_dir(image_dir)
-    for c in dic.kanji:
-        glyph_filename = os.path.join(image_dir, c.kanji + ".png")
-        if not os.path.exists(glyph_filename):
-            font.render_glyph(face, c.kanji, glyph_filename)
+    for kanji in kanji_iter:
+        png_path = os.path.join(image_dir, kanji.char + ".png")
+        if not os.path.exists(png_path):
+            yield kanji, png_path
+
+
+def render_images(reporter, face, new_image_iter):
+    for kanji, path in new_image_iter:
+        reporter("Rendering {kanji}", kanji=kanji)
+        font.render_glyph(face, kanji.char, path)
 
 
 class Reporter(object):
@@ -70,7 +76,8 @@ def create_collection(reporter, data_dir, font_path, also_212=False):
         dic.extend(kdic.KanjiDic0212.from_gzip(path_212))
     face = font.load_face(font_path)
     dic.to_tsv(os.path.join(data_dir, "dic.tsv"))
-    render_all(data_dir, face, dic)
+    new_image_iter = _iter_new_images(data_dir, (k for k in dic.kanji))
+    render_images(reporter, face, new_image_iter)
 
 
 def parse_args(argv):
