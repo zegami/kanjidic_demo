@@ -49,9 +49,15 @@ def _iter_new_images(data_dir, kanji_iter):
             yield kanji, png_path
 
 
-def render_images(reporter, face, new_image_iter):
-    for kanji, path in new_image_iter:
-        reporter("Rendering {kanji}", kanji=kanji)
+def _iter_report_images(reporter, image_iter):
+    for count, (kanji, path) in enumerate(image_iter):
+        if reporter.show_nth(count):
+            reporter("Rendering image {n} for {kanji}", n=count, kanji=kanji)
+        yield kanji, path
+
+
+def render_images(face, image_iter):
+    for kanji, path in image_iter:
         font.render_glyph(face, kanji.char, path)
 
 
@@ -67,6 +73,15 @@ class Reporter(object):
             self._stream.write(format_string.format(**kwargs) + "\n")
             self._stream.flush()
 
+    def show_nth(self, n, step=(1 << 10)):
+        """True if item in sequence should be reported based on level."""
+        if not self.level:
+            return False
+        factor = step >> (self.level << 1)
+        if not factor:
+            return True
+        return not n % factor
+
 
 def create_collection(reporter, data_dir, font_path, also_212=False):
     path_208 = get_dic(reporter, data_dir, KANJIDIC_URL)
@@ -77,7 +92,8 @@ def create_collection(reporter, data_dir, font_path, also_212=False):
     face = font.load_face(font_path)
     dic.to_tsv(os.path.join(data_dir, "dic.tsv"))
     new_image_iter = _iter_new_images(data_dir, (k for k in dic.kanji))
-    render_images(reporter, face, new_image_iter)
+    reporting_iter = _iter_report_images(reporter, new_image_iter)
+    render_images(face, reporting_iter)
 
 
 def parse_args(argv):
