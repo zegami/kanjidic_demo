@@ -91,6 +91,12 @@ class Kanji(object):
             "{}={!r}".format(k, getattr(self, k)) for k in self.__slots__
             if getattr(self, k, None) is not None))
 
+    def __str__(self):
+        some_translations = self.translations[:2]
+        if len(self.translations) > 2:
+            some_translations.append("...")
+        return "{!r} {}".format(self.char, " / ".join(some_translations))
+
 
 class KanjiDic(object):
 

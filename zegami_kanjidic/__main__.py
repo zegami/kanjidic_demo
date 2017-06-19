@@ -52,7 +52,7 @@ def _iter_new_images(data_dir, kanji_iter):
 def _iter_report_images(reporter, image_iter):
     for count, (kanji, path) in enumerate(image_iter):
         if reporter.show_nth(count):
-            reporter("Rendering image {n} for {kanji}", n=count, kanji=kanji)
+            reporter("Making image {n} for {kanji}", n=count, kanji=kanji)
         yield kanji, path
 
 
