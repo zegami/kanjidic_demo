@@ -83,14 +83,23 @@ class Reporter(object):
         return not n % factor
 
 
-def create_collection(reporter, data_dir, font_path, also_212=False):
+def get_kanjidic(reporter, data_dir, also_212):
     path_208 = get_dic(reporter, data_dir, KANJIDIC_URL)
     dic = kdic.KanjiDic.from_gzip(path_208)
+    reporter("Loaded {dic}", dic=dic, level=2)
     if also_212:
         path_212 = get_dic(reporter, data_dir, KANJD212_URL)
-        dic.extend(kdic.KanjiDic0212.from_gzip(path_212))
-    face = font.load_face(font_path)
+        dic_212 = kdic.KanjiDic0212.from_gzip(path_212)
+        reporter("Loaded {dic}", dic=dic_212, level=2)
+        dic.extend(dic_212)
+    return dic
+
+
+def create_collection(reporter, data_dir, font_path, also_212):
+    dic = get_kanjidic(reporter, data_dir, also_212)
     dic.to_tsv(os.path.join(data_dir, "dic.tsv"))
+
+    face = font.load_face(font_path)
     new_image_iter = _iter_new_images(data_dir, (k for k in dic.kanji))
     reporting_iter = _iter_report_images(reporter, new_image_iter)
     render_images(face, reporting_iter)

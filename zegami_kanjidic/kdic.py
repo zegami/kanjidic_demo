@@ -106,6 +106,12 @@ class KanjiDic(object):
     def __init__(self, line_iter):
         self.kanji = [Kanji.from_line(line) for line in line_iter]
 
+    def __len__(self):
+        return len(self.kanji)
+
+    def __repr__(self):
+        return "<{} len={}>".format(self.__class__.__name__, len(self))
+
     @classmethod
     def from_file(cls, fileobj):
         first = fileobj.readline()
