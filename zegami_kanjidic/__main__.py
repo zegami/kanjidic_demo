@@ -31,10 +31,11 @@ def _ensure_dir(dirname):
             raise
 
 
-def get_dic(to_dir, dic_url):
+def get_dic(reporter, to_dir, dic_url):
     dic_name = dic_url.rsplit("/", 1)[-1]
     dic_path = os.path.join(to_dir, dic_name)
     if not os.path.exists(dic_path):
+        reporter("Dowloading dictionary {url}", url=dic_url)
         http.download(dic_url, dic_path)
     return dic_path
 
@@ -48,10 +49,25 @@ def render_all(to_dir, face, dic):
             font.render_glyph(face, c.kanji, glyph_filename)
 
 
+class Reporter(object):
+    """Simplistic output to a stream with verbosity support."""
+
+    def __init__(self, stream, verbosity):
+        self._stream = stream
+        self.level = verbosity
+
+    def __call__(self, format_string, level=1, **kwargs):
+        if self.level >= level:
+            self._stream.write(format_string.format(**kwargs) + "\n")
+            self._stream.flush()
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument("--dir", default="data", help="dir for output")
     parser.add_argument("--font", default=DEFAULT_FONT, help="path of font")
+    parser.add_argument(
+        "-v", "--verbose", action="count", default=0, help="show progress")
     parser.add_argument(
         "--also-212", action="store_true",
         help="include supplementary kanji from JIS X 0212-1990")
@@ -60,12 +76,13 @@ def parse_args(argv):
 
 def main(argv):
     args = parse_args(argv)
+    reporter = Reporter(sys.stderr, args.verbose)
     try:
         _ensure_dir(args.dir)
-        path_208 = get_dic(args.dir, KANJIDIC_URL)
+        path_208 = get_dic(reporter, args.dir, KANJIDIC_URL)
         dic = kdic.KanjiDic.from_gzip(path_208)
         if args.also_212:
-            path_212 = get_dic(args.dir, KANJD212_URL)
+            path_212 = get_dic(reporter, args.dir, KANJD212_URL)
             dic.extend(kdic.KanjiDic0212.from_gzip(path_212))
         face = font.load_face(args.font)
         dic.to_tsv(os.path.join(args.dir, "dic.tsv"))
