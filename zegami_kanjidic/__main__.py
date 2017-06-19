@@ -2,9 +2,9 @@
 #
 # Copyright 2017 Zegami Ltd
 
-"""Command line script for making a Zegami collection from KANJIDIC."""
-
 from __future__ import absolute_import
+
+__doc__ = """Command line script to make a Zegami collection from KANJIDIC."""
 
 import argparse
 import errno
@@ -20,6 +20,10 @@ from . import (
 
 KANJIDIC_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjidic.gz"
 KANJD212_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjd212.gz"
+
+TSV_NAME = "dic.tsv"
+IMGDIR_NAME = "images/"
+
 DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
 
@@ -41,7 +45,7 @@ def get_dic(reporter, to_dir, dic_url):
 
 
 def _iter_new_images(data_dir, kanji_iter):
-    image_dir = os.path.join(data_dir, "images")
+    image_dir = os.path.join(data_dir, IMGDIR_NAME)
     _ensure_dir(image_dir)
     for kanji in kanji_iter:
         png_path = os.path.join(image_dir, kanji.char + ".png")
@@ -97,7 +101,7 @@ def get_kanjidic(reporter, data_dir, also_212):
 
 def create_collection(reporter, data_dir, font_path, also_212):
     dic = get_kanjidic(reporter, data_dir, also_212)
-    dic.to_tsv(os.path.join(data_dir, "dic.tsv"))
+    dic.to_tsv(os.path.join(data_dir, TSV_NAME))
 
     face = font.load_face(font_path)
     new_image_iter = _iter_new_images(data_dir, (k for k in dic.kanji))
