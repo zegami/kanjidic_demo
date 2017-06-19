@@ -28,8 +28,6 @@ TODO
   - Sending metadata over api
   - Uploading images over api
 
-- Optional addition of kanjd212 entries
-
 
 .. _KANJIDIC: http://www.edrdg.org/kanjidic/kanjidic.html
 .. _Zegami: https://zegami.com/
