@@ -62,6 +62,17 @@ class Reporter(object):
             self._stream.flush()
 
 
+def create_collection(reporter, data_dir, font_path, also_212=False):
+    path_208 = get_dic(reporter, data_dir, KANJIDIC_URL)
+    dic = kdic.KanjiDic.from_gzip(path_208)
+    if also_212:
+        path_212 = get_dic(reporter, data_dir, KANJD212_URL)
+        dic.extend(kdic.KanjiDic0212.from_gzip(path_212))
+    face = font.load_face(font_path)
+    dic.to_tsv(os.path.join(data_dir, "dic.tsv"))
+    render_all(data_dir, face, dic)
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument("--dir", default="data", help="dir for output")
@@ -79,14 +90,7 @@ def main(argv):
     reporter = Reporter(sys.stderr, args.verbose)
     try:
         _ensure_dir(args.dir)
-        path_208 = get_dic(reporter, args.dir, KANJIDIC_URL)
-        dic = kdic.KanjiDic.from_gzip(path_208)
-        if args.also_212:
-            path_212 = get_dic(reporter, args.dir, KANJD212_URL)
-            dic.extend(kdic.KanjiDic0212.from_gzip(path_212))
-        face = font.load_face(args.font)
-        dic.to_tsv(os.path.join(args.dir, "dic.tsv"))
-        render_all(args.dir, face, dic)
+        create_collection(reporter, args.dir, args.font, args.also_212)
     except (EnvironmentError, ValueError) as e:
         sys.stderr.write("error: {}\n".format(e))
         return 1
