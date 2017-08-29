@@ -10,7 +10,7 @@ import re
 import sys
 
 
-text = str if sys.version_info > (3,) else unicode
+text = str if sys.version_info > (3,) else unicode  # noqa
 
 # Overly complex regexp for parsing kanjidic
 _pat = re.compile(
