@@ -1,0 +1,4 @@
+[flake8]
+ignore = D1,D413
+max_complexity = 5
+import_order_style = google
