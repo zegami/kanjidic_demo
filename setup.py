@@ -27,5 +27,6 @@ setuptools.setup(
     install_requires=[
         "freetype-py >= 1",
         "Pillow >= 4",
+        "requests >= 2",
     ],
 )

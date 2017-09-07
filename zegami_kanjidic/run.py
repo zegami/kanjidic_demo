@@ -29,12 +29,12 @@ def _ensure_dir(dirname):
             raise
 
 
-def get_dic(reporter, to_dir, dic_url):
+def get_dic(reporter, session, to_dir, dic_url):
     dic_name = dic_url.rsplit("/", 1)[-1]
     dic_path = os.path.join(to_dir, dic_name)
     if not os.path.exists(dic_path):
         reporter("Dowloading dictionary {url}", url=dic_url)
-        http.download(dic_url, dic_path)
+        http.download(session, dic_url, dic_path)
     return dic_path
 
 
@@ -81,24 +81,65 @@ class Reporter(object):
         return not n % factor
 
 
-def get_kanjidic(reporter, data_dir, also_212):
-    path_208 = get_dic(reporter, data_dir, KANJIDIC_URL)
+def get_kanjidic(reporter, session, data_dir, also_212):
+    path_208 = get_dic(reporter, session, data_dir, KANJIDIC_URL)
     dic = kdic.KanjiDic.from_gzip(path_208)
     reporter("Loaded {dic}", dic=dic, level=2)
     if also_212:
-        path_212 = get_dic(reporter, data_dir, KANJD212_URL)
+        path_212 = get_dic(reporter, session, data_dir, KANJD212_URL)
         dic_212 = kdic.KanjiDic0212.from_gzip(path_212)
         reporter("Loaded {dic}", dic=dic_212, level=2)
         dic.extend(dic_212)
     return dic
 
 
-def create_collection(reporter, data_dir, font_path, also_212):
+def create_collection(reporter, client, data_dir, font_path, also_212):
     _ensure_dir(data_dir)
-    dic = get_kanjidic(reporter, data_dir, also_212)
+    if client is not None:
+        session = client.session
+    else:
+        session = http.make_session()
+
+    dic = get_kanjidic(reporter, session, data_dir, also_212)
     dic.to_tsv(os.path.join(data_dir, TSV_NAME))
 
     face = font.load_face(font_path)
-    new_image_iter = _iter_new_images(data_dir, (k for k in dic.kanji))
+    new_image_iter = _iter_new_images(data_dir, dic.kanji)
     reporting_iter = _iter_report_images(reporter, new_image_iter)
     render_images(face, reporting_iter)
+
+    if client is not None:
+        api_upload(reporter, client, data_dir, dic, also_212)
+
+
+def api_upload(reporter, client, data_dir, dic, also_212):
+    """Upload images and data to new Zegami collection.
+
+    For now this is dumb and syncronous, can intermingle with image creation
+    and parallelise later.
+    """
+    name = "Kanjidic"
+    description = "Zegami view of Jim Breen's KANJIDIC"
+    if also_212:
+        name += "2"
+        description += "with JIS 0212 characters"
+    collection = client.create_collection(name, description)
+    reporter("Created collection {id} {name}", level=0, **collection)
+
+    imageset_id = collection["imageset_id"]
+    image_dir = os.path.join(data_dir, IMGDIR_NAME)
+    for n, kanji in enumerate(dic.kanji):
+        if reporter.show_nth(n):
+            reporter("Uploading image {n} for {kanji}", n=n, kanji=kanji)
+        png_path = os.path.join(image_dir, kanji.char + ".png")
+        client.upload_png(imageset_id, png_path)
+
+    reporter("Uploading to dataset {dataset_id}", level=0, **collection)
+    dataset_id = collection["dataset_id"]
+    client.upload_data(dataset_id, os.path.join(data_dir, TSV_NAME))
+
+    join_ds = client.create_join("Join for " + name, imageset_id, dataset_id)
+    reporter("Created join dataset {id} {name}", level=0, **join_ds)
+
+    collection['join_dataset_id'] = join_ds['id']
+    client.update_collection(collection['id'], collection)

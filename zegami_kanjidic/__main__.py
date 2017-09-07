@@ -5,7 +5,10 @@ __doc__ = """Command line script to make a Zegami collection from KANJIDIC."""
 import argparse
 import sys
 
-from . import run
+from . import (
+    api,
+    run,
+)
 
 
 DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
@@ -13,6 +16,9 @@ DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
+    parser.add_argument("--api-url", help="Zegami api endpoint")
+    parser.add_argument("--project", help="Project id to make collection in")
+    parser.add_argument("--token", help="Temp hack to use token over login")
     parser.add_argument("--dir", default="data", help="dir for output")
     parser.add_argument("--font", default=DEFAULT_FONT, help="path of font")
     parser.add_argument(
@@ -26,8 +32,13 @@ def parse_args(argv):
 def main(argv):
     args = parse_args(argv)
     reporter = run.Reporter(sys.stderr, args.verbose)
+    if args.api_url is None:
+        client = None
+    else:
+        client = api.Client(args.api_url, args.project, args.token)
     try:
-        run.create_collection(reporter, args.dir, args.font, args.also_212)
+        run.create_collection(
+            reporter, client, args.dir, args.font, args.also_212)
     except (EnvironmentError, ValueError) as e:
         sys.stderr.write("error: {}\n".format(e))
         return 1

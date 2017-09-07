@@ -22,11 +22,9 @@ published under the `SIL Open Font Licence, Version 1.1`_ which allows reuse.
 TODO
 ----
 
-- Automated collection creation
-
-  - Registering/updating collection over api
-  - Sending metadata over api
-  - Uploading images over api
+- Some amount of additional polish
+- Reuse generic Zegami client when available
+- Include pretty description with links and licences
 
 
 .. _KANJIDIC: http://www.edrdg.org/kanjidic/kanjidic.html
