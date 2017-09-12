@@ -7,10 +7,10 @@
 import codecs
 import gzip
 import re
-import sys
 
 
-text = str if sys.version_info > (3,) else unicode  # noqa
+# Use unicode type regardless of python version
+text = type(u"")
 
 # Overly complex regexp for parsing kanjidic
 _pat = re.compile(
