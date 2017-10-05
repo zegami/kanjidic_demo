@@ -48,7 +48,7 @@ class Client(object):
 
     def create_join(self, name, imageset_id, dataset_id):
         url = "{}v0/project/{}/datasets/".format(
-            self.api_url, self.project, dataset_id)
+            self.api_url, self.project)
         info = {
             "name": name,
             "source": {
