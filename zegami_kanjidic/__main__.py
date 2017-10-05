@@ -11,22 +11,25 @@ from . import (
 )
 
 
-DEFAULT_FONT = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-
-
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument("--api-url", help="Zegami api endpoint")
     parser.add_argument("--project", help="Project id to make collection in")
     parser.add_argument("--token", help="Temp hack to use token over login")
     parser.add_argument("--dir", default="data", help="dir for output")
-    parser.add_argument("--font", default=DEFAULT_FONT, help="path of font")
+    parser.add_argument("--font", help="path of font")
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="show progress")
     parser.add_argument(
         "--also-212", action="store_true",
         help="include supplementary kanji from JIS X 0212-1990")
-    return parser.parse_args(argv[1:])
+    args = parser.parse_args(argv[1:])
+    if args.font is None:
+        default_font = run.get_default_font()
+        if default_font is None:
+            parser.error("no default fonts found, use --font")
+        args.font = default_font
+    return args
 
 
 def main(argv):

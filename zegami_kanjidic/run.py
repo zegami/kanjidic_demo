@@ -20,6 +20,11 @@ KANJD212_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjd212.gz"
 TSV_NAME = "dic.tsv"
 IMGDIR_NAME = "images/"
 
+DEFAULT_FONTS = [
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+]
+
 
 def _ensure_dir(dirname):
     try:
@@ -27,6 +32,12 @@ def _ensure_dir(dirname):
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
+
+
+def get_default_font():
+    for font_path in DEFAULT_FONTS:
+        if os.path.exists(font_path):
+            return font_path
 
 
 def get_dic(reporter, session, to_dir, dic_url):
