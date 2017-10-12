@@ -19,6 +19,7 @@ KANJD212_URL = "http://ftp.monash.edu.au/pub/nihongo/kanjd212.gz"
 
 TSV_NAME = "dic.tsv"
 IMGDIR_NAME = "images/"
+XSLT_NAME = "../kanji.xslt"
 
 DEFAULT_FONTS = [
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
@@ -104,7 +105,7 @@ def get_kanjidic(reporter, session, data_dir, also_212):
     return dic
 
 
-def create_collection(reporter, client, data_dir, font_path, also_212):
+def create_collection(reporter, client, data_dir, font_path, also_212, zegs):
     _ensure_dir(data_dir)
     if client is not None:
         session = client.session
@@ -114,16 +115,17 @@ def create_collection(reporter, client, data_dir, font_path, also_212):
     dic = get_kanjidic(reporter, session, data_dir, also_212)
     dic.to_tsv(os.path.join(data_dir, TSV_NAME))
 
+    # TODO: skip rendering images if using zegs
     face = font.load_face(font_path)
     new_image_iter = _iter_new_images(data_dir, dic.kanji)
     reporting_iter = _iter_report_images(reporter, new_image_iter)
     render_images(face, reporting_iter)
 
     if client is not None:
-        api_upload(reporter, client, data_dir, dic, also_212)
+        api_upload(reporter, client, data_dir, dic, also_212, zegs)
 
 
-def api_upload(reporter, client, data_dir, dic, also_212):
+def api_upload(reporter, client, data_dir, dic, also_212, zegs):
     """Upload images and data to new Zegami collection.
 
     For now this is dumb and syncronous, can intermingle with image creation
@@ -134,23 +136,41 @@ def api_upload(reporter, client, data_dir, dic, also_212):
     if also_212:
         name += "2"
         description += "with JIS 0212 characters"
-    collection = client.create_collection(name, description)
+    collection = client.create_collection(name, description, zegs)
     reporter("Created collection {id} {name}", level=0, **collection)
-
-    imageset_id = collection["imageset_id"]
-    image_dir = os.path.join(data_dir, IMGDIR_NAME)
-    for n, kanji in enumerate(dic.kanji):
-        if reporter.show_nth(n):
-            reporter("Uploading image {n} for {kanji}", n=n, kanji=kanji)
-        png_path = os.path.join(image_dir, kanji.char + ".png")
-        client.upload_png(imageset_id, png_path)
 
     reporter("Uploading to dataset {dataset_id}", level=0, **collection)
     dataset_id = collection["dataset_id"]
-    client.upload_data(dataset_id, os.path.join(data_dir, TSV_NAME))
+    with open(os.path.join(data_dir, TSV_NAME)) as f:
+        client.upload_data(dataset_id, TSV_NAME, f)
+
+    if zegs:
+        xslt_path = os.path.join(data_dir, XSLT_NAME)
+        finish_zeg_collection(reporter, client, collection, xslt_path)
+    else:
+        image_dir = os.path.join(data_dir, IMGDIR_NAME)
+        finish_image_collection(reporter, client, dic, collection, image_dir)
+
+
+def finish_image_collection(reporter, client, dic, collection, image_dir):
+    name = collection["name"]
+    dataset_id = collection["dataset_id"]
+    imageset_id = collection["imageset_id"]
+    for n, kanji in enumerate(dic.kanji):
+        if reporter.show_nth(n):
+            reporter("Uploading image {n} for {kanji}", n=n, kanji=kanji)
+        png_name = kanji.char + ".png"
+        with open(os.path.join(image_dir, png_name), 'rb') as f:
+            client.upload_png(imageset_id, png_name, f)
 
     join_ds = client.create_join("Join for " + name, imageset_id, dataset_id)
     reporter("Created join dataset {id} {name}", level=0, **join_ds)
 
     collection['join_dataset_id'] = join_ds['id']
     client.update_collection(collection['id'], collection)
+
+
+def finish_zeg_collection(reporter, client, collection, xslt_path):
+    with open(xslt_path) as f:
+        client.upload_zegx(collection['id'], f)
+    reporter("Created zegx template", level=0)

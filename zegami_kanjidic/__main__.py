@@ -23,6 +23,9 @@ def parse_args(argv):
     parser.add_argument(
         "--also-212", action="store_true",
         help="include supplementary kanji from JIS X 0212-1990")
+    parser.add_argument(
+        "--use-zeg", action="store_true",
+        help="create collection with zeg xslt template rather than images")
     args = parser.parse_args(argv[1:])
     if args.font is None:
         default_font = run.get_default_font()
@@ -41,7 +44,7 @@ def main(argv):
         client = api.Client(args.api_url, args.project, args.token)
     try:
         run.create_collection(
-            reporter, client, args.dir, args.font, args.also_212)
+            reporter, client, args.dir, args.font, args.also_212, args.use_zeg)
     except (EnvironmentError, ValueError) as e:
         sys.stderr.write("error: {}\n".format(e))
         return 1
