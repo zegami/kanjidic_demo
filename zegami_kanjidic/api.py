@@ -12,6 +12,7 @@ from . import (
 # Some mimetypes for file upload
 PNG_TYPE = "image/png"
 TSV_TYPE = "text/tab-separated-values"
+XSLT_TYPE = "application/xml"
 
 
 class Client(object):
@@ -24,9 +25,9 @@ class Client(object):
         auth = http.TokenEndpointAuth(api_url, token)
         self.session = http.make_session(auth)
 
-    def create_collection(self, name, description=None):
+    def create_collection(self, name, description=None, dynamic=False):
         url = "{}v0/project/{}/collections/".format(self.api_url, self.project)
-        info = {"name": name}
+        info = {"name": name, "dynamic": dynamic}
         if description is not None:
             info["description"] = description
         response_json = http.post_json(self.session, url, info)
@@ -60,14 +61,20 @@ class Client(object):
         response_json = http.post_json(self.session, url, info)
         return response_json["dataset"]
 
-    def upload_data(self, dataset_id, path):
+    def upload_data(self, dataset_id, name, file):
         url = "{}v0/project/{}/datasets/{}/file".format(
             self.api_url, self.project, dataset_id)
-        response_json = http.post_file(self.session, url, path, TSV_TYPE)
+        response_json = http.post_file(self.session, url, name, file, TSV_TYPE)
         return response_json
 
-    def upload_png(self, imageset_id, path):
+    def upload_png(self, imageset_id, name, file):
         url = "{}v0/project/{}/imagesets/{}/images".format(
             self.api_url, self.project, imageset_id)
-        response_json = http.post_file(self.session, url, path, PNG_TYPE)
+        response_json = http.post_file(self.session, url, name, file, PNG_TYPE)
+        return response_json
+
+    def upload_zegx(self, collection_id, file):
+        url = "{}v0/project/{}/collections/{}/zegx".format(
+            self.api_url, self.project, collection_id)
+        response_json = http.put_file(self.session, url, file, XSLT_TYPE)
         return response_json

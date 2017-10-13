@@ -2,8 +2,6 @@
 
 """Tools for making http requests."""
 
-import os
-
 import requests
 
 
@@ -50,13 +48,20 @@ def post_json(session, url, python_obj):
         return response.json()
 
 
-def post_file(session, url, filepath, mimetype):
+def post_file(session, url, name, filelike, mimetype):
     """Send a data file."""
-    with open(filepath, 'rb') as f:
-        details = (os.path.basename(filepath), f, mimetype)
-        with session.post(url, files={'file': details}) as response:
-            response.raise_for_status()
-            return response.json()
+    details = (name, filelike, mimetype)
+    with session.post(url, files={'file': details}) as response:
+        response.raise_for_status()
+        return response.json()
+
+
+def put_file(session, url, filelike, mimetype):
+    """Put binary content and decode json respose."""
+    headers = {'Content-Type': mimetype}
+    with session.put(url, data=filelike, headers=headers) as response:
+        response.raise_for_status()
+        return response.json()
 
 
 def put_json(session, url, python_obj):
