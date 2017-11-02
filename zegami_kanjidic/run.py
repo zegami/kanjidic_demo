@@ -115,11 +115,11 @@ def create_collection(reporter, client, data_dir, font_path, also_212, zegs):
     dic = get_kanjidic(reporter, session, data_dir, also_212)
     dic.to_tsv(os.path.join(data_dir, TSV_NAME))
 
-    # TODO: skip rendering images if using zegs
-    face = font.load_face(font_path)
-    new_image_iter = _iter_new_images(data_dir, dic.kanji)
-    reporting_iter = _iter_report_images(reporter, new_image_iter)
-    render_images(face, reporting_iter)
+    if not zegs:
+        face = font.load_face(font_path)
+        new_image_iter = _iter_new_images(data_dir, dic.kanji)
+        reporting_iter = _iter_report_images(reporter, new_image_iter)
+        render_images(face, reporting_iter)
 
     if client is not None:
         api_upload(reporter, client, data_dir, dic, also_212, zegs)
@@ -135,7 +135,10 @@ def api_upload(reporter, client, data_dir, dic, also_212, zegs):
     description = "Zegami view of Jim Breen's KANJIDIC"
     if also_212:
         name += "2"
-        description += "with JIS 0212 characters"
+        description += " with JIS 0212 characters"
+    if zegs:
+        name += " Dyn"
+        description += " (using dynamic tiles)"
     collection = client.create_collection(name, description, zegs)
     reporter("Created collection {id} {name}", level=0, **collection)
 
