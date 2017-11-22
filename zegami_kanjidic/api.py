@@ -47,7 +47,7 @@ class Client(object):
         response_json = http.post_json(self.session, url, info)
         return response_json['imageset']
 
-    def create_join(self, name, imageset_id, dataset_id):
+    def create_join(self, name, imageset_id, dataset_id, join_field='id'):
         url = "{}v0/project/{}/datasets/".format(
             self.api_url, self.project)
         info = {
@@ -55,7 +55,8 @@ class Client(object):
             "source": {
                 "imageset_id": imageset_id,
                 "dataset_id": dataset_id,
-                "imageset_name_join_to_dataset": {"dataset_column": "id"},
+                "imageset_name_join_to_dataset":
+                    {"dataset_column": join_field},
             }
         }
         response_json = http.post_json(self.session, url, info)
