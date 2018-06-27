@@ -40,10 +40,10 @@ class Client(object):
         return response_json['collection']
 
     def create_imageset(self, name, source=None):
+        if source is None:
+            source = {"upload": {}}
         url = "{}v0/project/{}/imagesets/".format(self.api_url, self.project)
-        info = {"name": name}
-        if source is not None:
-            info["source"] = source
+        info = {"name": name, "source": source}
         response_json = http.post_json(self.session, url, info)
         return response_json['imageset']
 
