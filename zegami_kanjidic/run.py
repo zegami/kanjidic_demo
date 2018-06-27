@@ -144,7 +144,7 @@ def api_upload(reporter, client, data_dir, dic, also_212, zegs):
 
     reporter("Uploading to dataset {dataset_id}", level=0, **collection)
     dataset_id = collection["dataset_id"]
-    with open(os.path.join(data_dir, TSV_NAME)) as f:
+    with open(os.path.join(data_dir, TSV_NAME), 'rb') as f:
         client.upload_data(dataset_id, TSV_NAME, f)
 
     if zegs:
@@ -174,6 +174,6 @@ def finish_image_collection(reporter, client, dic, collection, image_dir):
 
 
 def finish_zeg_collection(reporter, client, collection, xslt_path):
-    with open(xslt_path) as f:
+    with open(xslt_path, 'rb') as f:
         client.upload_zegx(collection['id'], f)
     reporter("Created zegx template", level=0)
