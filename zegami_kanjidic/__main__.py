@@ -29,7 +29,7 @@ def parse_args(argv):
     args = parser.parse_args(argv[1:])
     if args.font is None:
         default_font = run.get_default_font()
-        if default_font is None:
+        if default_font is None and not args.use_zeg:
             parser.error("no default fonts found, use --font")
         args.font = default_font
     return args
