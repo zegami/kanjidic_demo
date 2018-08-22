@@ -19,6 +19,25 @@ Images may be generated with any font, but the default `Noto Sans CJK`_ face is
 published under the `SIL Open Font Licence, Version 1.1`_ which allows reuse.
 
 
+Usage
+-----
+
+Installation::
+
+    cd kanjidic_demo
+    pip install -e .
+
+To run::
+
+    python -m zegami_kanjidic --api-url https://app.zegami.net/api/ \
+    --project djFPOGtB --token XXXXXX \
+    --font /Library/Fonts/NotoSansCJK-Regular.ttc
+
+Note that the location of the font is going to be OS-specific and the kanji
+font may not be installed on your machine by default. If not, the
+NotoSansCJK-Regular font (amongst others) can be downloaded from
+https://www.google.com/get/noto/help/cjk/
+
 TODO
 ----
 

@@ -24,6 +24,7 @@ XSLT_NAME = "../kanji.xslt"
 DEFAULT_FONTS = [
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+    "/System/Library/Fonts/Hiragino Sans GB.ttc",
 ]
 
 
