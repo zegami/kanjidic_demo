@@ -5,7 +5,7 @@
 <xsl:template match="row">
 	<svg width="64" height="68">
 		<rect x="0" y="0" width="100%" height="100%" fill='#fff'/>
-		<text x="0" y="0" font-size="64" dominant-baseline="text-before-edge" font-family="Meiryo, Noto Sans CJK, MS Gothic, sans">
+		<text x="0" y="58" font-size="64" font-family="Meiryo, Noto Sans CJK, MS Gothic, sans">
 			<xsl:apply-templates select="value[@colname='grade']"/>
 			<xsl:apply-templates select="value[@colname='id']"/>
 		</text>
@@ -13,7 +13,7 @@
 </xsl:template>
 
 <xsl:template match="row[@size = 'small']">
-	<svg width="32" height="32">
+	<svg width="32" height="34">
 		<rect x="0" y="0" width="100%" height="100%" fill='#fff'/>
 		<rect x="8" y="8" width="16" height="16">
 			<xsl:apply-templates select="value[@colname='grade']"/>
