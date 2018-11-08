@@ -4,13 +4,14 @@ KANJIDIC to Zegami collection
 
 Scripts for the conversion of the KANJIDIC_ Japanese kanji dictionary into a
 Zegami_ collection. This includes parsing the database file, rendering images
-using an OpenType font, and generating a metadata subset.
+using an OpenType font, generating a metadata subset, and uploading to the api.
 
 
-Licence
+License
 -------
 
-This code is copyright Zegami Ltd and not currently released under any licence.
+This code is copyright Zegami Ltd released under the `Apache License 2.0`_ see
+`<LICENSE>`_ for a copy of the terms and conditions.
 
 The `EDRDG Licence Statement`_ allows for reuse of the dictionaries, and
 therefore the derived collection, under the `CC BY-SA 3.0`_ license.
@@ -48,6 +49,7 @@ TODO
 
 .. _KANJIDIC: http://www.edrdg.org/kanjidic/kanjidic.html
 .. _Zegami: https://zegami.com/
+.. _Apache License 2.0: http://www.apache.org/licenses/LICENSE-2.0
 .. _EDRDG Licence Statement: http://www.edrdg.org/edrdg/licence.html
 .. _CC BY-SA 3.0: http://creativecommons.org/licenses/by-sa/3.0/
 .. _Noto Sans CJK: http://www.google.com/get/noto/help/cjk/
