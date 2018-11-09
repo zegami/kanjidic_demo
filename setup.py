@@ -27,7 +27,7 @@ def readme():
 
 
 setuptools.setup(
-    name="Zegami KANJIDIC demo",
+    name="Zegami-KANJIDIC",
     version="0.3",
     description="Zegami demo using KANJIDIC",
     long_description=readme(),
@@ -36,7 +36,9 @@ setuptools.setup(
     author="Martin Packman",
     author_email="martin@zegami.com",
     packages=["zegami_kanjidic"],
-    scripts=["ktoz"],
+    entry_points={
+        "console_scripts": ["ktoz = zegami_kanjidic.__main__:main"],
+    },
     install_requires=[
         "freetype-py >= 1",
         "Pillow >= 4",

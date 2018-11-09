@@ -29,7 +29,7 @@ Installation::
 
 To run::
 
-    ktoz --api-url https://app.zegami.net/api/ --project $PROJ --token $TOKEN
+    ktoz --project $PROJECT --token $TOKEN
 
 Or run as a module to use a different Python version::
 
@@ -42,7 +42,6 @@ Google or different local font can be specified with the ``--font`` argument.
 TODO
 ----
 
-- Some amount of additional polish
 - Reuse generic Zegami client when available
 - Include pretty description with links and licences
 
