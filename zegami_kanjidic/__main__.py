@@ -25,7 +25,9 @@ from . import (
 
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
-    parser.add_argument("--api-url", help="Zegami api endpoint")
+    parser.add_argument(
+        "--api-url", default="https://zegami.com/api/",
+        help="Zegami api endpoint")
     parser.add_argument("--project", help="Project id to make collection in")
     parser.add_argument("--token", help="Temp hack to use token over login")
     parser.add_argument("--dir", default="data", help="dir for output")
@@ -47,10 +49,12 @@ def parse_args(argv):
     return args
 
 
-def main(argv):
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
     args = parse_args(argv)
     reporter = run.Reporter(sys.stderr, args.verbose)
-    if args.api_url is None:
+    if args.project is None:
         client = None
     else:
         client = api.Client(args.api_url, args.project, args.token)
